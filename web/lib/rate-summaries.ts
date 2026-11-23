@@ -1,35 +1,16 @@
-import { z } from "zod";
-
 export const RATE_SUMMARY_REVALIDATE_SECONDS = 3600;
 
-const isoDate = z
-  .string()
-  .regex(/^\d{4}-\d{2}-\d{2}$/)
-  .refine((value) => {
-    const parsed = new Date(`${value}T00:00:00Z`);
-    return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
-  });
-
-const rate = z
-  .union([
-    z.string().trim().regex(/^\d+(?:\.\d+)?$/),
-    z.number().finite().nonnegative(),
-  ])
-  .transform((value) => (typeof value === "string" ? value : String(value)));
-
-export const rateSummarySchema = z.object({
-  pair: z.string().trim().min(1),
-  date: isoDate,
-  source: z.string().trim().min(1),
-  sampleCount: z.number().int().nonnegative(),
-  min: rate,
-  p25: rate,
-  median: rate,
-  p75: rate,
-  max: rate,
-});
-
-export type RateSummary = z.infer<typeof rateSummarySchema>;
+export interface RateSummary {
+  pair: string;
+  date: string;
+  source: string;
+  sampleCount: number;
+  min: string;
+  p25: string;
+  median: string;
+  p75: string;
+  max: string;
+}
 
 export type RateSummaryError =
   | "not_configured"
@@ -45,10 +26,81 @@ export interface RateSummarySnapshot {
   readAt: string;
 }
 
-const responseSchema = z.union([
-  z.array(rateSummarySchema),
-  z.object({ summaries: z.array(rateSummarySchema) }),
-]);
+const isRecord = (value: unknown): value is Record<string, unknown> =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
+
+const isValidDate = (value: unknown): value is string => {
+  if (typeof value !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
+  const parsed = new Date(`${value}T00:00:00Z`);
+  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;
+};
+
+const parseRate = (value: unknown): string | undefined => {
+  if (typeof value === "string") {
+    const trimmed = value.trim();
+    return /^\d+(?:\.\d+)?$/.test(trimmed) ? trimmed : undefined;
+  }
+  if (typeof value === "number" && Number.isFinite(value) && value >= 0) return String(value);
+  return undefined;
+};
+
+const parseSummary = (value: unknown): RateSummary | undefined => {
+  if (!isRecord(value)) return undefined;
+  if (typeof value.pair !== "string" || !value.pair.trim()) return undefined;
+  if (!isValidDate(value.date)) return undefined;
+  if (typeof value.source !== "string" || !value.source.trim()) return undefined;
+  if (
+    typeof value.sampleCount !== "number" ||
+    !Number.isInteger(value.sampleCount) ||
+    value.sampleCount < 0
+  ) {
+    return undefined;
+  }
+
+  const min = parseRate(value.min);
+  const p25 = parseRate(value.p25);
+  const median = parseRate(value.median);
+  const p75 = parseRate(value.p75);
+  const max = parseRate(value.max);
+  if (
+    min === undefined ||
+    p25 === undefined ||
+    median === undefined ||
+    p75 === undefined ||
+    max === undefined
+  ) {
+    return undefined;
+  }
+
+  return {
+    pair: value.pair.trim(),
+    date: value.date,
+    source: value.source.trim(),
+    sampleCount: value.sampleCount,
+    min,
+    p25,
+    median,
+    p75,
+    max,
+  };
+};
+
+const parseSummaries = (value: unknown): RateSummary[] | undefined => {
+  const raw = Array.isArray(value)
+    ? value
+    : isRecord(value) && Array.isArray(value.summaries)
+      ? value.summaries
+      : undefined;
+  if (!raw) return undefined;
+
+  const summaries: RateSummary[] = [];
+  for (const item of raw) {
+    const summary = parseSummary(item);
+    if (!summary) return undefined;
+    summaries.push(summary);
+  }
+  return summaries;
+};
 
 const sortSummaries = (summaries: readonly RateSummary[]) =>
   [...summaries].sort(
@@ -97,10 +149,9 @@ export async function fetchRateSummaries(
     const response = await fetch(url.toString(), init);
     if (!response.ok) return failed("upstream_unavailable", true);
 
-    const parsed = responseSchema.safeParse(await response.json());
-    if (!parsed.success) return failed("invalid_payload", true);
+    const summaries = parseSummaries(await response.json());
+    if (!summaries) return failed("invalid_payload", true);
 
-    const summaries = Array.isArray(parsed.data) ? parsed.data : parsed.data.summaries;
     return { ok: true, configured: true, summaries: sortSummaries(summaries), readAt };
   } catch {
     return failed("upstream_unavailable", true);
