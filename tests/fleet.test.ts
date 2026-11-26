@@ -37,6 +37,7 @@ describe("contracts/anchors.json fleet", () => {
       "linkio.africa",
       "impalapay.com",
       "yellowcard.io",
+      "kbtrading.org",
     ]);
     expect(fleet.anchors.map((a) => ({ domain: a.domain, kind: a.kind }))).toEqual([
       { domain: "testanchor.stellar.org", kind: "test" },
@@ -71,6 +72,7 @@ describe("contracts/anchors.json fleet", () => {
       { domain: "linkio.africa", kind: "other" },
       { domain: "impalapay.com", kind: "other" },
       { domain: "yellowcard.io", kind: "other" },
+      { domain: "kbtrading.org", kind: "other" },
     ]);
   });
 
