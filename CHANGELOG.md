@@ -15,6 +15,14 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) once it reache
 - A public, cached JSON endpoint at `/api/rate-summaries` serves the same data.
 - New env var `RATE_SUMMARIES_URL` (documented in `.env.example`) points at the daily summary
   JSON from #595.
+### Added — Planner step 1: `candidates()` by destination asset and country ([#604](https://github.com/corridor-in-a-box/corridor-in-a-box/issues/604))
+
+- `candidates(request, corridors)` in `@corridor/router` returns every configured corridor whose
+  destination asset and country match the request, plus every other corridor with the reason it
+  did not match (RFC 0004 planner step 1). Configuration only: no registry, network or pricing.
+- Optional `dest.country` manifest field (ISO 3166-1 alpha-2, validated in `@corridor/manifest`).
+  When it is absent, the planner falls back to `compliance.dest_jurisdiction`, so existing
+  manifests and their hashes are unchanged.
 
 ### Added — Rate history page ([#601](https://github.com/corridor-in-a-box/corridor-in-a-box/issues/601))
 
