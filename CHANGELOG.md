@@ -13,6 +13,14 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) once it reache
   0004): the business's own success rate on it over 30 days, shrunk toward 0.5 below 20 runs,
   and multiplied by an attestation-age factor that reaches 0 at the one-week freshness bound. No
   attestation scores 0. The rules are documented in `docs/route-resolver.md` ("Reliability").
+### Added — Planner step 1: `candidates()` by destination asset and country ([#604](https://github.com/corridor-in-a-box/corridor-in-a-box/issues/604))
+
+- `candidates(request, corridors)` in `@corridor/router` returns every configured corridor whose
+  destination asset and country match the request, plus every other corridor with the reason it
+  did not match (RFC 0004 planner step 1). Configuration only: no registry, network or pricing.
+- Optional `dest.country` manifest field (ISO 3166-1 alpha-2, validated in `@corridor/manifest`).
+  When it is absent, the planner falls back to `compliance.dest_jurisdiction`, so existing
+  manifests and their hashes are unchanged.
 
 ### Added — Rate history page ([#601](https://github.com/corridor-in-a-box/corridor-in-a-box/issues/601))
 
