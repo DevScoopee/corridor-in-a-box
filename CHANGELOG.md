@@ -7,6 +7,15 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) once it reache
 
 ## [Unreleased]
 
+### Added — Daily rate summaries on the web app ([#596](https://github.com/corridor-in-a-box/corridor-in-a-box/issues/596))
+
+- A `/rates` page lists the latest validated daily summary per pair and source (date, source,
+  sample count, min, P25, median, P75, max). Nothing is hardcoded: an unset or broken source
+  shows no numbers.
+- A public, cached JSON endpoint at `/api/rate-summaries` serves the same data.
+- New env var `RATE_SUMMARIES_URL` (documented in `.env.example`) points at the daily summary
+  JSON from #595.
+
 ### Added — Rate history page ([#601](https://github.com/corridor-in-a-box/corridor-in-a-box/issues/601))
 
 - `docs/rate-history.md` documents rate history per RFC 0004 §3: the four sources (SEP-38
