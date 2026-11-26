@@ -13,6 +13,7 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) once it reache
   0004): the business's own success rate on it over 30 days, shrunk toward 0.5 below 20 runs,
   and multiplied by an attestation-age factor that reaches 0 at the one-week freshness bound. No
   attestation scores 0. The rules are documented in `docs/route-resolver.md` ("Reliability").
+
 ### Added — rate collector loop with 15-minute schedule, jitter, and overlap guard ([#593](https://github.com/corridor-in-a-box/corridor-in-a-box/issues/593))
 
 - `RateCollectorLoop` in `@corridor/engine` runs a list of collector steps (`{ name, run }`) on a
