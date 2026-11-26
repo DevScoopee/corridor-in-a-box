@@ -7,6 +7,13 @@ follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html) once it reache
 
 ## [Unreleased]
 
+### Added — `reliability()` score for receiving anchors ([#612](https://github.com/corridor-in-a-box/corridor-in-a-box/issues/612))
+
+- `reliability(anchor, deps)` in `@corridor/router` scores a receiving anchor from 0 to 1 (RFC
+  0004): the business's own success rate on it over 30 days, shrunk toward 0.5 below 20 runs,
+  and multiplied by an attestation-age factor that reaches 0 at the one-week freshness bound. No
+  attestation scores 0. The rules are documented in `docs/route-resolver.md` ("Reliability").
+
 ### Added — Rate history page ([#601](https://github.com/corridor-in-a-box/corridor-in-a-box/issues/601))
 
 - `docs/rate-history.md` documents rate history per RFC 0004 §3: the four sources (SEP-38

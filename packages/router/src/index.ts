@@ -4,8 +4,7 @@
 // manifest) and RegistryRouteResolver (require a fresh on-chain attestation). A
 // resolver weighted by anchor health, conformance, latency, and proprietary
 // routing data could be supplied separately in the future; no such proprietary
-// component is included or injected here. `reliability()` is the RFC 0004 score
-// such a planner can use, not a resolver or a ranked planner.
+// component is included or injected here.
 
 import type { Corridor } from "@corridor/manifest";
 import type { AnchorAdapter, SourceAnchorAdapter } from "@corridor/adapter-kit";
@@ -214,15 +213,60 @@ export type {
   TransactionFieldSpec,
 } from "./limits-filter";
 
+export type {
+  PriceLabel,
+  RouteOption,
+  RoutePlanner,
+  RoutePolicy,
+  RouteRequest,
+} from "./planner";
+
+export {
+  buildEstimatedOption,
+  DEFAULT_MIN_ESTIMATE_SPAN_DAYS,
+  DEFAULT_ESTIMATE_WINDOW_DAYS,
+  DEFAULT_MIN_ESTIMATE_SAMPLES,
+} from "./estimated-price";
+export type {
+  EstimatedPriceDetails,
+  EstimatedPriceDropped,
+  EstimatedPriceOffered,
+  EstimatedPriceOutcome,
+  EstimatedPricePolicy,
+  EstimatePriceRequest,
+  RateSample,
+} from "./estimated-price";
+export {
+  canonicalDecimal,
+  compareDecimals,
+  percentile,
+  percentileRank,
+  windowed,
+} from "./rate-percentile";
+export {
+  DEFAULT_ESTIMATE_MARGIN_BPS,
+  applyEstimateMargin,
+  fetchIndicativePrice,
+} from "./indicative-price";
+export type { IndicativePriceRequest, IndicativeRouteOption } from "./indicative-price";
+export { PinnedRouteResolver, UnpinnedRouteError } from "./pinned-resolver";
+export type {
+  PinnedRouteResolverOptions,
+  PinnedRunRecord,
+  PinnedRunStore,
+} from "./pinned-resolver";
+
 // RFC 0004 route-option score: run-history success rate, discounted by attestation age.
 export {
   ATTESTATION_PENALTY_LEDGERS,
   MIN_RELIABILITY_RUNS,
   RELIABILITY_WINDOW_MS,
   reliability,
-  type ReliabilityAttestationSource,
-  type ReliabilityDeps,
-  type ReliabilityRun,
-  type ReliabilityRunOutcome,
-  type ReliabilityRunStore,
+} from "./reliability";
+export type {
+  ReliabilityAttestationSource,
+  ReliabilityDeps,
+  ReliabilityRun,
+  ReliabilityRunOutcome,
+  ReliabilityRunStore,
 } from "./reliability";
